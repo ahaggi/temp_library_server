@@ -1,0 +1,6 @@
+Bugs 
+
+- findOne panics
+    1-Add a book without a storage info, and then
+    2- Query books{storage{quantity} }
+

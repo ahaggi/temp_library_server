@@ -1,0 +1,73 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./library.db"
+}
+
+model Book {
+  id             String           @default(cuid()) @id
+  title          String
+  isbn           String           @unique
+  pages          Int
+  chapters       Int
+  price          Float
+  description    String?
+  imgUri         String?
+  booksToAuthors BooksToAuthors[] @relation("BookTo_BooksToAuthors")
+  booksToReaders BooksToReaders[] @relation("BookTo_BooksToReaders")
+  storage        Storage?
+}
+
+model Author {
+  id             String           @default(cuid()) @id
+  name           String
+  email          String           @unique
+  about          String?
+  imgUri         String?
+  booksToAuthors BooksToAuthors[] @relation("AuthorTo_BooksToAuthors")
+}
+
+model BooksToAuthors {
+  id       String @default(cuid()) @id
+  bookId   String?
+  authorId String?
+  author   Author? @relation("AuthorTo_BooksToAuthors", fields: [authorId], references: [id])
+  book     Book?   @relation("BookTo_BooksToAuthors", fields: [bookId], references: [id])
+
+  @@map("_BooksToAuthors")
+}
+
+model Reader {
+  id             String           @default(cuid()) @id
+  name           String
+  email          String           @unique
+  costumerId     String           @default(cuid())
+  address        String?
+  phone          Int?             @unique
+  imgUri         String?
+  booksToReaders BooksToReaders[] @relation("ReaderTo_BooksToReaders")
+}
+
+model BooksToReaders {
+  id         String  @default(cuid()) @id
+  borrowDate String
+  returnDate String
+  returned   Boolean  @default(false)
+  bookId     String?
+  readerId   String?
+  book       Book?    @relation("BookTo_BooksToReaders", fields: [bookId], references: [id])
+  reader     Reader?  @relation("ReaderTo_BooksToReaders", fields: [readerId], references: [id])
+
+  @@map("_BooksToReaders")
+}
+
+model Storage {
+  id               String @default(cuid()) @id
+  bookId           String?
+  quantity         Int
+  borrowedQuantity Int? @default(0)
+  book             Book?   @relation(fields: [bookId], references: [id])
+}
