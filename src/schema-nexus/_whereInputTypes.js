@@ -38,17 +38,128 @@ const { inputObjectType, unionType, objectType } = require('@nexus/schema')
     But until Nexus-prisma-plugin deploy a better solotion, this is OK.
  */
 
+// export type StringFilter = {
+//     equals?: string
+//     in?: Enumerable<string>
+//     notIn?: Enumerable<string>
+//     lt?: string
+//     lte?: string
+//     gt?: string
+//     gte?: string
+//     contains?: string
+//     startsWith?: string
+//     endsWith?: string
+//     not?: string | NestedStringFilter
+//   }
+const _StringFilter = inputObjectType({
+    name: "_StringFilter",
+    definition(t) {
+        t.string("equals")
+        t.string("in", { list: true })
+        t.string("notIn", { list: true })
+        t.string("lt")
+        t.string("lte")
+        t.string("gt")
+        t.string("gte")
+        t.string("contains")
+        t.string("startsWith")
+        t.string("endsWith")
+        t.field("not", { type: "_StringFilter" })
+    }
+})
+
+// export type IntFilter = {
+//     equals?: number
+//     in?: Enumerable<number>
+//     notIn?: Enumerable<number>
+//     lt?: number
+//     lte?: number
+//     gt?: number
+//     gte?: number
+//     not?: number | NestedIntFilter
+//   }
+const _IntFilter = inputObjectType({
+    name: "_IntFilter",
+    definition(t) {
+        t.int("equals")
+        t.int("in", { list: true })
+        t.int("notIn", { list: true })
+        t.int("lt")
+        t.int("lte")
+        t.int("gt")
+        t.int("gte")
+        t.field("not", { type: "_IntFilter" })
+    }
+})
+
+//   export type FloatFilter = {
+//     equals?: number
+//     in?: Enumerable<number>
+//     notIn?: Enumerable<number>
+//     lt?: number
+//     lte?: number
+//     gt?: number
+//     gte?: number
+//     not?: number | NestedFloatFilter
+//   }
+
+const _FloatFilter = inputObjectType({
+    name: "_FloatFilter",
+    definition(t) {
+        t.float("equals")
+        t.float("in", { list: true })
+        t.float("notIn", { list: true })
+        t.float("lt")
+        t.float("lte")
+        t.float("gt")
+        t.float("gte")
+        t.field("not", { type: "_FloatFilter" })
+    }
+})
+// export type BoolFilter = {
+//     equals?: boolean
+//     not?: boolean | NestedBoolFilter
+//   }
+
+const _BoolFilter = inputObjectType({
+    name: "_BoolFilter",
+    definition(t) {
+        t.boolean("equals")
+        t.field("not", { type: "_BoolFilter" })
+    }
+})
+
+
+// const _StringDateFilter = inputObjectType({
+//     name: "_StringDateFilter",
+//     definition(t) {
+//         t.string("equals")
+//         t.string("in", { list: true })
+//         t.string("notIn", { list: true })
+//         t.string("lt")
+//         t.string("lte")
+//         t.string("gt")
+//         t.string("gte")
+//         // t.string("contains")      NOT supported by Date comparison
+//         // t.string("startsWith")    NOT supported by Date comparison
+//         // t.string("endsWith")      NOT supported by Date comparison
+//         t.string("notIn", { list: true })
+//         t.field("not", { type: "_StringDateFilter" })
+//     }
+// })
+
 const _BookWhereInput = inputObjectType({
     name: "_BookWhereInput",
     definition(t) {
         t.string("id")
-        t.field("title", { type: 'String' }) //  | _StringNullableFilter 
-        t.string("isbn")
-        t.int("pages")
-        t.int("chapters")
-        t.float("price")
-        t.string("description")
-        t.string("imgUri", { nullable: true })
+        t.field("title", { type: _StringFilter })
+        t.field("isbn", { type: _StringFilter })
+        t.field("pages", { type: _IntFilter })
+        t.field("chapters", { type: _IntFilter })
+        t.field("price", { type: _FloatFilter })
+        t.field("description", { type: _StringFilter })
+        t.field("available", { type: _BoolFilter })
+        // t.string("imgUri", { nullable: true })
         t.field("booksToAuthors", { type: _BooksToAuthorsListRelationFilter })  // OBS this is not a list type
         t.field("booksToReaders", { type: _BooksToReadersListRelationFilter })  // OBS this is not a list type
         t.field("storage", { type: _StorageWhereInput })
@@ -60,11 +171,12 @@ const _BookWhereInput = inputObjectType({
 const _AuthorWhereInput = inputObjectType({
     name: "_AuthorWhereInput",
     definition(t) {
+
         t.string("id")
-        t.string("name")
-        t.string("email")
-        t.string("about")
-        t.string("imgUri", { nullable: true })
+        t.field("name", { type: _StringFilter })
+        t.field("email", { type: _StringFilter })
+        t.field("about", { type: _StringFilter })
+        // t.string("imgUri", { nullable: true })
         t.field("booksToAuthors", { type: _BooksToAuthorsListRelationFilter })
         t.field("OR", { type: _AuthorWhereInput, list: true })
         t.field("NOT", { type: _AuthorWhereInput, list: true })
@@ -82,18 +194,17 @@ const _BooksToAuthorsWhereInput = inputObjectType({
     }
 });
 
-
 const _ReaderWhereInput = inputObjectType({
     name: "_ReaderWhereInput",
     definition(t) {
         t.string("id")
-        t.string("name")
-        t.string("email")
-        t.string("imgUri")
-        t.string("costumerId")
-        t.string("address")
-        t.int("phone")
-        t.field("booksToReaders", { type: _BooksToReadersListRelationFilter, list: true })
+        t.field("name", { type: _StringFilter })
+        t.field("email", { type: _StringFilter })
+        // t.string("imgUri")
+        t.field("costumerId", { type: _StringFilter })
+        t.field("address", { type: _StringFilter })
+        t.field("phone", { type: _StringFilter })
+        t.field("booksToReaders", { type: _BooksToReadersListRelationFilter })
         t.field("OR", { type: _ReaderWhereInput, list: true })
         t.field("NOT", { type: _ReaderWhereInput, list: true })
     }
@@ -104,9 +215,12 @@ const _BooksToReadersWhereInput = inputObjectType({
     name: "_BooksToReadersWhereInput",
     definition(t) {
         t.string("id")
-        t.string("borrowDate")
-        t.string("returnDate")
-        t.boolean("returned")
+        // OBS it is more sufficient to save the date as string instead of creating a costume scalar type.
+        // In case of need to a compair dates, string compairison will work just fine since we save the dates as 
+        // (UTC-zulu format) YYYY-MM-DD'T'HH:mm:ss
+        t.field("borrowDate", { type: _StringFilter })
+        t.field("returnDate", { type: _StringFilter })
+        t.field("returned", { type: _BoolFilter })
         t.field("book", { type: _BookWhereInput })
         t.field("reader", { type: _ReaderWhereInput })
         t.field("OR", { type: _BooksToReadersWhereInput, list: true })
@@ -118,8 +232,8 @@ const _StorageWhereInput = inputObjectType({
     name: "_StorageWhereInput",
     definition(t) {
         t.string("id")
-        t.int("quantity")
-        t.int("borrowedQuantity")
+        t.field("quantity", { type: _IntFilter })
+        t.field("borrowedQuantity", { type: _IntFilter })
         t.field("book", { type: _BookWhereInput })
     }
 });

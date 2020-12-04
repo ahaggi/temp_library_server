@@ -444,7 +444,7 @@ const _ReaderUpdateWithoutBooksToReadersDataInput = inputObjectType({
         t.string("email", { nullable: true })
         t.string("imgUri", { nullable: true })
         t.string("address", { nullable: true })
-        t.int("phone", { nullable: true })
+        t.string("phone", { nullable: true })
     }
 });
 
@@ -648,7 +648,7 @@ const _ReaderUpdateInput = inputObjectType({
         t.string("email", { nullable: true })
         t.string("imgUri", { nullable: true })
         t.string("address", { nullable: true })
-        t.int("phone", { nullable: true })
+        t.string("phone", { nullable: true })
         t.field("booksToReaders", { type: _BooksToReadersUpdateManyWithoutReaderInput, nullable: true })
     }
 });

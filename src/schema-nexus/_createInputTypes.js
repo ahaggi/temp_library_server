@@ -200,7 +200,7 @@ const _ReaderCreateWithoutBooksToReadersInput = inputObjectType({
         t.string("imgUri", { nullable: true })
         // t.string("costumerId")
         t.string("address")
-        t.int("phone", { nullable: true })
+        t.string("phone", { nullable: true })
     }
 });
 
@@ -214,6 +214,7 @@ const _ReaderWhereUniqueInput = inputObjectType({
     definition(t) {
         t.string("id")
         t.string("email")
+        t.string("phone")
     }
 });
 
@@ -394,7 +395,7 @@ const _ReaderCreateInput = inputObjectType({
         t.string("imgUri", { nullable: true })
         // t.string("costumerId")
         t.string("address")
-        t.int("phone", { nullable: true })
+        t.string("phone", { nullable: true })
         t.field("booksToReaders", { type: _BooksToReadersCreateManyWithoutReaderInput })
     }
 });

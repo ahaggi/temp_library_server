@@ -1,7 +1,7 @@
 
 const { objectType, booleanArg, floatArg, idArg, intArg, stringArg, arg } = require('@nexus/schema')
-const { _BooksToReadersWhereInput  } = require('./_whereInputTypes')
-const {  _BooksToReadersWhereUniqueInput } = require('./_createInputTypes')
+const { _BooksToReadersWhereInput } = require('./_whereInputTypes')
+const { _BooksToReadersWhereUniqueInput } = require('./_createInputTypes')
 
 
 const BooksToReaders = objectType({
@@ -34,7 +34,7 @@ const BooksToReaders = objectType({
         }
 
         return JSON.stringify(res)
-      },
+      }
     })
     // t.field("data", {
     //   type: "JSON",
@@ -72,6 +72,7 @@ let dhm = (ms) => {
 //     id
 //   }
 // }
+// Use Book or Reader qry instead of using this!
 const _getBooksToReadersByID = (t) => t.field('getBooksToReadersByID', {
   type: BooksToReaders,
   nullable: true, // OBS findOne
@@ -107,7 +108,7 @@ const _getBooksToReadersByReturnDate = (t) => t.list.field('getBooksToReadersByR
 
 //******************************************Costume WhereInput*********************************************************/
 /*
-getBooksToReadersBy(_booksToReadersArgs: {
+getBooksToReadersByWhereInput(_booksToReadersArgs: {
                                     book: {
                                       OR: [
                                         {
@@ -129,14 +130,36 @@ getBooksToReadersBy(_booksToReadersArgs: {
                                     },
                                   }
 */
-const _getBooksToReadersBy = (t) => {
-  return t.list.field('getBooksToReadersBy', {
+const _getBooksToReadersByWhereInput = (t) => {
+  return t.list.field('getBooksToReadersByWhereInput', {
     type: BooksToReaders,
     args: {
       _booksToReadersArgs: arg({ type: _BooksToReadersWhereInput })
     },
     resolve: (_, { _booksToReadersArgs }, ctx) => {
+
+      // OBS it is more sufficient to save the date as string instead of creating a costume scalar type.
+      // In case of need to a compair dates, string compairison will work just fine since we save the dates as 
+      // (UTC-zulu format) YYYY-MM-DD'T'HH:mm:ss
+
+
+      // let checkByBorrowDate = Object.prototype.hasOwnProperty.call(obj, 'borrowDate')
+      // let checkByReturnDate = Object.prototype.hasOwnProperty.call(obj, 'returnDate')
+
+      // if (checkByBorrowDate) {
+      //   for (var prop in _booksToReadersArgs.borrowDate) {
+      //     _booksToReadersArgs.borrowDate[prop] = new Date(_booksToReadersArgs.borrowDate[prop])
+      //   }
+      // }
+
+      // if (checkByReturnDate) {
+      //   for (var prop in _booksToReadersArgs.returnDate) {
+      //     _booksToReadersArgs.returnDate[prop] = new Date(_booksToReadersArgs.returnDate[prop])
+      //   }
+      // }
+
       console.log(_booksToReadersArgs)
+
       return ctx.prisma.booksToReaders.findMany({
         where: _booksToReadersArgs
       })
@@ -156,7 +179,7 @@ const _deleteBooksToReaders = (t) => {
       where: arg({ type: _BooksToReadersWhereUniqueInput }),
     },
     resolve: (_, { where }, ctx) => {
-      return ctx.prisma.booksToReaders.delete({where: where})
+      return ctx.prisma.booksToReaders.delete({ where: where })
     },
   })
 
@@ -168,6 +191,6 @@ module.exports = {
   _getBooksToReadersByID,
   _getBooksToReadersByBorrowDate,
   _getBooksToReadersByReturnDate,
-  _getBooksToReadersBy,
+  _getBooksToReadersByWhereInput,
   _deleteBooksToReaders
 }

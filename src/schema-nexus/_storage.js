@@ -1,5 +1,5 @@
 
-const { idArg, makeSchema, objectType, stringArg, extendType, intArg , arg } = require('@nexus/schema')
+const { idArg, makeSchema, objectType, stringArg, extendType, intArg, arg } = require('@nexus/schema')
 const { _StorageWhereInput } = require('./_whereInputTypes')
 const { _StorageCreateInput, _StorageWhereUniqueInput } = require('./_createInputTypes')
 const { _StorageUpdateInput } = require('./_updateInputTypes')
@@ -52,8 +52,8 @@ const _getStorageByBorrowedQuantity = (t) => t.list.field('getStorageByQuantity'
 
 
 //******************************************Costume WhereInput**********************************************************/
-const _getStorageBy = (t) => {
-    return t.list.field('getStorageBy', {
+const _getStorageByWhereInput = (t) => {
+    return t.list.field('getStorageByWhereInput', {
         type: Storage,
         args: {
             _storageArgs: arg({ type: _StorageWhereInput })
@@ -79,10 +79,10 @@ const _getStorageBy = (t) => {
 //         return ctx.prisma.storage.create(data)
 //       },
 //     })
-  
+
 //   }
-  
-  
+
+
 
 //   const _updateStorage = (t) => {
 //     t.field('updateStorage', {
@@ -98,9 +98,9 @@ const _getStorageBy = (t) => {
 //         })
 //       },
 //     })
-  
+
 //   }
-  
+
 //   /*
 //    mutation {
 //      deleteStorage(where:{id:"ckg3ybuvc00164kv8yw1eka6f"}){
@@ -117,7 +117,7 @@ const _getStorageBy = (t) => {
 //         return ctx.prisma.storage.delete({where: where})
 //       },
 //     })
-  
+
 //   }
 
 
@@ -127,7 +127,7 @@ module.exports = {
     _getStorageByID,
     _getStorageByQuantity,
     _getStorageByBorrowedQuantity,
-    _getStorageBy,
+    _getStorageByWhereInput,
 
     // _createStorage, 
     // _updateStorage, 

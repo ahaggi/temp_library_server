@@ -46,7 +46,7 @@ model Reader {
   email          String           @unique
   costumerId     String           @default(cuid())
   address        String?
-  phone          Int?             @unique
+  phone          String?          @unique
   imgUri         String?
   booksToReaders BooksToReaders[] @relation("ReaderTo_BooksToReaders")
 }

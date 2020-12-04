@@ -12,15 +12,6 @@ const BooksToAuthors = objectType({
     },
 })
 
-
-
-
-
-
-
-
-
-
 // query {
 //   booksToAuthors(id:"54"){
 //     id
@@ -43,14 +34,13 @@ const _getBooksToAuthorsByID = (t) => t.field('getBooksToAuthorsByID', {
 //******************************************Costume WhereInput*********************************************************/
 
 // Use Book or Author qry instead of using this!
-const _getBooksToAuthorsBy = (t) => {
-    return t.list.field('getBooksToAuthorsBy', {
+const _getBooksToAuthorsByWhereInput = (t) => {
+    return t.list.field('getBooksToAuthorsByWhereInput', {
         type: BooksToAuthors,
         args: {
             _booksToAuthorsArgs: arg({ type: _BooksToAuthorsWhereInput })
         },
         resolve: (_, { _booksToAuthorsArgs }, ctx) => {
-            console.log(_booksToAuthorsArgs)
             return ctx.prisma.booksToAuthors.findMany({
                 where: _booksToAuthorsArgs
             })
@@ -72,5 +62,5 @@ const _getBooksToAuthorsBy = (t) => {
 module.exports = {
     BooksToAuthors,
     _getBooksToAuthorsByID,
-    _getBooksToAuthorsBy
+    _getBooksToAuthorsByWhereInput
 }

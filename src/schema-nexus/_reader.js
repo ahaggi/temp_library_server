@@ -60,8 +60,8 @@ const _getReaders = (t) => t.list.field('getReaders', {
 // use cases:
 // Read more at the comments in "_inputTypes.js"
 
-const _getReadersBy = (t) => {
-  return t.list.field('getReadersBy', {
+const _getReadersByWhereInput = (t) => {
+  return t.list.field('getReadersByWhereInput', {
     type: Reader,
     args: {
       _readerArgs: arg({ type: _ReaderWhereInput })
@@ -112,11 +112,25 @@ const _createReader = (t) => {
     args: {
       data: arg({ type: _ReaderCreateInput }),
     },
-    resolve: (_, data, ctx) => {
-      return ctx.prisma.reader.create(data)
+    resolve: async(_, data, ctx) => {
+      const createdReader =  await ctx.prisma.reader.create(data)
+      // publish that an Author has been created
+       ctx.pubsub.publish(READER_CREATED, { createdReader })
+      return createdReader;
     },
   })
 
+}
+
+const _createdReaderSub = (t) => {
+  t.field("createdReaderSub", {
+    type: Reader,
+    subscribe: (_, __, ctx) => ctx.pubsub.asyncIterator(READER_CREATED),
+    resolve: async(promise)=> {
+      const reader = await promise.createdReader
+      return reader
+    }
+  });
 }
 
 
@@ -132,14 +146,27 @@ const _updateReader = (t) => {
       where: arg({ type: _ReaderWhereUniqueInput }),
       data: arg({ type: _ReaderUpdateInput }),
     },
-    resolve: (_, { where, data }, ctx) => {
-      return ctx.prisma.reader.update({
+    resolve:async (_, { where, data }, ctx) => {
+      const updatedReader =  await ctx.prisma.reader.update({
         where: where,
         data: data,
       })
+      // publish that an Author has been updated
+       ctx.pubsub.publish(READER_UPDATED, { updatedReader })
+      return updatedReader;
     },
   })
 
+}
+const _updatedReaderSub = (t) => {
+  t.field("updatedReaderSub", {
+    type: Reader,
+    subscribe: (_, __, ctx) => ctx.pubsub.asyncIterator(READER_UPDATED),
+    resolve: async(promise)=> {
+      const reader = await promise.updatedReader
+      return reader
+    }
+  });
 }
 
 /*
@@ -151,22 +178,49 @@ const _deleteReader = (t) => {
     args: {
       where: arg({ type: _ReaderWhereUniqueInput }),
     },
-    resolve: (_, { where }, ctx) => {
-      return ctx.prisma.reader.delete({ where: where })
+    resolve: async(_, { where }, ctx) => {
+      const deletedReader =  await ctx.prisma.reader.delete({ where: where })
+      // publish that an Author has been deleted
+       ctx.pubsub.publish(READER_DELETED, { deletedReader })
+      return deletedReader;
+
     },
   })
 
 }
+
+const _deletedReaderSub = (t) => {
+  t.field("deletedReaderSub", {
+    type: Reader,
+    subscribe: (_, __, ctx) => ctx.pubsub.asyncIterator(READER_DELETED),
+    resolve: async(promise)=> {
+      const reader = await promise.deletedReader
+      return reader
+    }
+  });
+}
+
+
+
+const
+READER_CREATED = 'READER_CREATED',
+READER_UPDATED = 'READER_UPDATED',
+READER_DELETED = 'READER_DELETED';
+
 module.exports = {
   Reader,
   _getReaderByID,
   _getReaderByEmail,
 
   _getReaders,
-  _getReadersBy,
+  _getReadersByWhereInput,
 
   _createReader,
   _updateReader,
   _deleteReader,
+
+  _createdReaderSub,
+  _updatedReaderSub,
+  _deletedReaderSub,
 
 }

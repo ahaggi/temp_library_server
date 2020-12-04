@@ -42,12 +42,11 @@ input _AuthorUpsertWithoutBooksToAuthorsInput {
 }
 
 input _AuthorWhereInput {
-  about: String
+  about: _StringFilter
   booksToAuthors: _BooksToAuthorsListRelationFilter
-  email: String
+  email: _StringFilter
   id: String
-  imgUri: String
-  name: String
+  name: _StringFilter
   NOT: [_AuthorWhereInput!]
   OR: [_AuthorWhereInput!]
 }
@@ -289,13 +288,13 @@ input _BooksToReadersUpsertWithWhereUniqueWithoutReaderInput {
 
 input _BooksToReadersWhereInput {
   book: _BookWhereInput
-  borrowDate: String
+  borrowDate: _StringFilter
   id: String
   NOT: [_BooksToReadersWhereInput!]
   OR: [_BooksToReadersWhereInput!]
   reader: _ReaderWhereInput
-  returnDate: String
-  returned: Boolean
+  returnDate: _StringFilter
+  returned: _BoolFilter
 }
 
 input _BooksToReadersWhereUniqueInput {
@@ -364,24 +363,51 @@ input _BookUpsertWithoutBooksToReadersInput {
 }
 
 input _BookWhereInput {
+  available: _BoolFilter
   booksToAuthors: _BooksToAuthorsListRelationFilter
   booksToReaders: _BooksToReadersListRelationFilter
-  chapters: Int
-  description: String
+  chapters: _IntFilter
+  description: _StringFilter
   id: String
-  imgUri: String
-  isbn: String
+  isbn: _StringFilter
   NOT: [_BookWhereInput!]
   OR: [_BookWhereInput!]
-  pages: Int
-  price: Float
+  pages: _IntFilter
+  price: _FloatFilter
   storage: _StorageWhereInput
-  title: String
+  title: _StringFilter
 }
 
 input _BookWhereUniqueInput {
   id: String
   isbn: String
+}
+
+input _BoolFilter {
+  equals: Boolean
+  not: _BoolFilter
+}
+
+input _FloatFilter {
+  equals: Float
+  gt: Float
+  gte: Float
+  in: [Float!]
+  lt: Float
+  lte: Float
+  not: _FloatFilter
+  notIn: [Float!]
+}
+
+input _IntFilter {
+  equals: Int
+  gt: Int
+  gte: Int
+  in: [Int!]
+  lt: Int
+  lte: Int
+  not: _IntFilter
+  notIn: [Int!]
 }
 
 input _ReaderCreateInput {
@@ -390,7 +416,7 @@ input _ReaderCreateInput {
   email: String
   imgUri: String
   name: String
-  phone: Int
+  phone: String
 }
 
 input _ReaderCreateOneWithoutBooksToReadersInput {
@@ -403,7 +429,7 @@ input _ReaderUpdateInput {
   email: String
   imgUri: String
   name: String
-  phone: Int
+  phone: String
 }
 
 input _ReaderUpdateOneWithoutBooksToReadersInput {
@@ -419,7 +445,7 @@ input _ReaderUpdateWithoutBooksToReadersDataInput {
   email: String
   imgUri: String
   name: String
-  phone: Int
+  phone: String
 }
 
 input _ReaderUpsertWithoutBooksToReadersInput {
@@ -427,21 +453,21 @@ input _ReaderUpsertWithoutBooksToReadersInput {
 }
 
 input _ReaderWhereInput {
-  address: String
-  booksToReaders: [_BooksToReadersListRelationFilter!]
-  costumerId: String
-  email: String
+  address: _StringFilter
+  booksToReaders: _BooksToReadersListRelationFilter
+  costumerId: _StringFilter
+  email: _StringFilter
   id: String
-  imgUri: String
-  name: String
+  name: _StringFilter
   NOT: [_ReaderWhereInput!]
   OR: [_ReaderWhereInput!]
-  phone: Int
+  phone: _StringFilter
 }
 
 input _ReaderWhereUniqueInput {
   email: String
   id: String
+  phone: String
 }
 
 input _StorageCreateOneWithoutBookInput {
@@ -471,9 +497,23 @@ input _StorageUpsertWithoutBookInput {
 
 input _StorageWhereInput {
   book: _BookWhereInput
-  borrowedQuantity: Int
+  borrowedQuantity: _IntFilter
   id: String
-  quantity: Int
+  quantity: _IntFilter
+}
+
+input _StringFilter {
+  contains: String
+  endsWith: String
+  equals: String
+  gt: String
+  gte: String
+  in: [String!]
+  lt: String
+  lte: String
+  not: _StringFilter
+  notIn: [String!]
+  startsWith: String
 }
 
 type Author {
@@ -532,7 +572,7 @@ type Mutation {
   deleteBook(where: _BookWhereUniqueInput): Book!
   deleteBooksToReaders(where: _BooksToReadersWhereUniqueInput): BooksToReaders!
   deleteReader(where: _ReaderWhereUniqueInput): Reader!
-  TODO(id: String): Book
+  mockbookMut: Book!
   updateAuthor(data: _AuthorUpdateInput, where: _AuthorWhereUniqueInput): Author!
   updateBook(data: _BookUpdateInput, where: _BookWhereUniqueInput): Book!
   updateReader(data: _ReaderUpdateInput, where: _ReaderWhereUniqueInput): Reader!
@@ -542,25 +582,24 @@ type Query {
   getAuthorByEmail(email: String!): Author
   getAuthorByID(id: String!): Author
   getAuthors: [Author!]!
-  getAuthorsBy(_authorArgs: _AuthorWhereInput): [Author!]!
+  getAuthorsByWhereInput(_authorArgs: _AuthorWhereInput): [Author!]!
   getBookByID(id: String!): Book
   getBookByISBN(isbn: String!): Book
   getBooks: [Book!]!
-  getBooksBy(_bookArgs: _BookWhereInput): [Book!]!
-  getBooksToAuthorsBy(_booksToAuthorsArgs: _BooksToAuthorsWhereInput): [BooksToAuthors!]!
+  getBooksByWhereInput(_bookArgs: _BookWhereInput): [Book!]!
   getBooksToAuthorsByID(id: String!): BooksToAuthors
-  getBooksToReadersBy(_booksToReadersArgs: _BooksToReadersWhereInput): [BooksToReaders!]!
+  getBooksToAuthorsByWhereInput(_booksToAuthorsArgs: _BooksToAuthorsWhereInput): [BooksToAuthors!]!
   getBooksToReadersByBorrowDate(borrowDate: String): [BooksToReaders!]!
   getBooksToReadersByID(id: String!): BooksToReaders
   getBooksToReadersByReturnDate(returnDate: String!): [BooksToReaders!]!
+  getBooksToReadersByWhereInput(_booksToReadersArgs: _BooksToReadersWhereInput): [BooksToReaders!]!
   getReaderByEmail(email: String!): Reader
   getReaderByID(id: String!): Reader
   getReaders: [Reader!]!
-  getReadersBy(_readerArgs: _ReaderWhereInput): [Reader!]!
-  getStorageBy(_storageArgs: _StorageWhereInput): [Storage!]!
+  getReadersByWhereInput(_readerArgs: _ReaderWhereInput): [Reader!]!
   getStorageByID(id: String!): Storage
   getStorageByQuantity(borrowedQuantity: Int): [Storage!]!
-  q: [Reader!]!
+  getStorageByWhereInput(_storageArgs: _StorageWhereInput): [Storage!]!
 }
 
 type Reader {
@@ -571,7 +610,7 @@ type Reader {
   id: String!
   imgUri: String
   name: String!
-  phone: Int
+  phone: String
 }
 
 type Storage {
@@ -579,4 +618,16 @@ type Storage {
   borrowedQuantity: Int
   id: String!
   quantity: Int!
+}
+
+type Subscription {
+  createdAuthorSub: Author!
+  createdBookSub: Book!
+  createdReaderSub: Reader!
+  deletedAuthorSub: Author!
+  deletedBookSub: Book!
+  deletedReaderSub: Reader!
+  updatedAuthorSub: Author!
+  updatedBookSub: Book!
+  updatedReaderSub: Reader!
 }

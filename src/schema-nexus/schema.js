@@ -1,6 +1,6 @@
 const { nexusSchemaPrisma } = require('nexus-plugin-prisma/schema')
 // const { nexusPrismaPlugin } = require('nexus-prisma') DEPRECATED
-const { stringArg, makeSchema, objectType, extendType } = require('@nexus/schema')
+const { stringArg, makeSchema, objectType, extendType, } = require('@nexus/schema')
 
 
 
@@ -13,51 +13,33 @@ const Queries = extendType({
 
   definition(t) {
     foo._getBookByID(t),
-    foo._getBookByISBN(t),
+      foo._getBookByISBN(t),
 
       foo._getBooks(t),
-      foo._getBooksBy(t),
+      foo._getBooksByWhereInput(t),
 
       foo._getAuthorByID(t),
       foo._getAuthorByEmail(t),
       foo._getAuthors(t),
-      foo._getAuthorsBy(t),
+      foo._getAuthorsByWhereInput(t),
 
       foo._getBooksToAuthorsByID(t),
-      foo._getBooksToAuthorsBy(t),
+      foo._getBooksToAuthorsByWhereInput(t),
 
       foo._getReaderByID(t),
       foo._getReaderByEmail(t),
       foo._getReaders(t),
-      foo._getReadersBy(t),
+      foo._getReadersByWhereInput(t),
 
       foo._getBooksToReadersByID(t),
       foo._getBooksToReadersByBorrowDate(t),
       foo._getBooksToReadersByReturnDate(t),
-      foo._getBooksToReadersBy(t),
+      foo._getBooksToReadersByWhereInput(t),
 
       foo._getStorageByID(t),
       foo._getStorageByQuantity(t),
       foo._getStorageByBorrowedQuantity(t),
-      foo._getStorageBy(t),
-
-
-      t.list.field('q', {
-        type: foo.Reader,
-        resolve: (_, __, ctx) => {
-
-
-          return ctx.prisma.reader.findMany({
-            where: {
-              booksToReaders: {
-                borrowDate: {
-                  equals: new Date("2020-02-28T00:00:00.000Z")
-                }
-              }
-            }
-          })
-        }
-      });
+      foo._getStorageByWhereInput(t)
 
   },
 })
@@ -67,10 +49,11 @@ const Queries = extendType({
 const Mutations = objectType({
   name: 'Mutation',
   definition(t) {
-    
+
     foo._createBook(t),
       foo._updateBook(t),
       foo._deleteBook(t),
+      // foo.__mockbookMut(t)
 
       foo._createAuthor(t),
       foo._updateAuthor(t),
@@ -85,28 +68,28 @@ const Mutations = objectType({
       // foo._updateStorage(t),
       // foo._deleteStorage(t),
 
-      foo._deleteBooksToReaders(t),
+      foo._deleteBooksToReaders(t)
 
-
-      t.field('TODO', {
-        type: 'Book',
-        nullable: true,
-        args: {
-          id: stringArg(),
-        },
-        resolve: (_, { id }, ctx) => {
-          return ctx.prisma.post.update({
-            where: { id: Number(id) },
-            data: { published: true },
-          })
-        },
-      })
   },
 })
 
+const Subscription = objectType({
+  name: "Subscription",
+  definition(t) {
+    foo._createdBookSub(t),
+      foo._updatedBookSub(t),
+      foo._deletedBookSub(t),
+      foo._createdAuthorSub(t),
+      foo._updatedAuthorSub(t),
+      foo._deletedAuthorSub(t),
+      foo._createdReaderSub(t),
+      foo._updatedReaderSub(t),
+      foo._deletedReaderSub(t)
+  }
+})
 
 const schema = makeSchema({
-  types: [Queries, Mutations, foo.Book, foo.Author, foo.BooksToAuthors, foo.BooksToReaders, foo.Reader, foo.Storage],
+  types: [Queries, Mutations, Subscription, foo.Book, foo.Author, foo.BooksToAuthors, foo.BooksToReaders, foo.Reader, foo.Storage],
   plugins: [nexusSchemaPrisma()],
   outputs: {
     schema: __dirname + '/../schema.graphql',

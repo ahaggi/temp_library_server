@@ -20,7 +20,7 @@ const Author = objectType({
 })
 
 const _getAuthorByID = (t) => t.field('getAuthorByID', {
-    type: Author ,
+    type: Author,
     nullable: true, // OBS findOne
     args: { id: stringArg({ nullable: false }) },
 
@@ -31,12 +31,12 @@ const _getAuthorByID = (t) => t.field('getAuthorByID', {
     }
 });
 const _getAuthorByEmail = (t) => t.field('getAuthorByEmail', {
-    type: Author ,
+    type: Author,
     nullable: true, // OBS findOne
     args: { email: stringArg({ nullable: false }) },
-    resolve: async(_, { email }, ctx) => {
+    resolve: async (_, { email }, ctx) => {
         console.log('\n\n################## getAuthorByEmail ##################')
-        console.log(`_getAuthorByEmail    at  ${new Date(Date.now()). toISOString()}`)
+        console.log(`_getAuthorByEmail    at  ${new Date(Date.now()).toISOString()}`)
         console.log('--------------------------------------------------\n\n')
         let a = ctx.prisma.author.findOne({
             where: { email: email }
@@ -58,8 +58,8 @@ const _getAuthors = (t) => t.list.field('getAuthors', {
 // use cases:
 // Read more at the comments in "_inputTypes.js"
 
-const _getAuthorsBy = (t) => {
-    return t.list.field('getAuthorsBy', {
+const _getAuthorsByWhereInput = (t) => {
+    return t.list.field('getAuthorsByWhereInput', {
         type: Author,
         args: {
             _authorArgs: arg({ type: _AuthorWhereInput })
@@ -111,13 +111,27 @@ const _createAuthor = (t) => {
         args: {
             data: arg({ type: _AuthorCreateInput }),
         },
-        resolve: (_, data, ctx) => {
-            return ctx.prisma.author.create(data)
+        resolve:async (_, data, ctx) => {
+            const createdAuthor =  await ctx.prisma.author.create(data)
+            // publish that an Author has been created
+             ctx.pubsub.publish(AUTHOR_CREATED, { createdAuthor })
+            return createdAuthor;
+      
         },
     })
 }
 
-
+const _createdAuthorSub = (t) => {
+    t.field("createdAuthorSub", {
+      type: Author,
+      subscribe: (_, __, ctx) => ctx.pubsub.asyncIterator(AUTHOR_CREATED),
+      resolve: async(promise )=> {
+        const author = await promise.createdAuthor
+        return author
+      }
+    });
+  }
+  
 
 /**
 mutation {
@@ -131,45 +145,78 @@ const _updateAuthor = (t) => {
             where: arg({ type: _AuthorWhereUniqueInput }),
             data: arg({ type: _AuthorUpdateInput }),
         },
-        resolve: (_, { where, data }, ctx) => {
-            return ctx.prisma.author.update({
+        resolve: async(_, { where, data }, ctx) => {
+            const updatedAuthor =  await ctx.prisma.author.update({
                 where: where,
                 data: data,
             })
+            // publish that an Author has been updated
+             ctx.pubsub.publish(AUTHOR_UPDATED, { updatedAuthor })
+            return updatedAuthor;
+
         },
     })
 
 }
 
-/*
+const _updatedAuthorSub = (t) => {
+    t.field("updatedAuthorSub", {
+      type: Author,
+      subscribe: (_, __, ctx) => ctx.pubsub.asyncIterator(AUTHOR_UPDATED),
+      resolve: async(promise)=> {
+        const author = await promise.updatedAuthor
+        return author
+      }
+    });
+  }
 
-*/
-const _deleteAuthor = (t) => {
+
+  const _deleteAuthor = (t) => {
     t.field('deleteAuthor', {
         type: Author,
         args: {
             where: arg({ type: _AuthorWhereUniqueInput }),
         },
-        resolve: (_, { where }, ctx) => {
-            return ctx.prisma.author.delete({ where: where })
+        resolve:async (_, { where }, ctx) => {
+            const deletedAuthor =  await ctx.prisma.author.delete({ where: where })
+            // publish that an Author has been deleted
+             ctx.pubsub.publish(AUTHOR_DELETED, { deletedAuthor })
+            return deletedAuthor;
         },
     })
 }
 
+const _deletedAuthorSub = (t) => {
+    t.field("deletedAuthorSub", {
+      type: Author,
+      subscribe: (_, __, ctx) => ctx.pubsub.asyncIterator(AUTHOR_DELETED),
+      resolve: async(promise)=> {
+        const author = await promise.deletedAuthor
+        return author
+      }
+    });
+  }
 
+const
+AUTHOR_CREATED = 'AUTHOR_CREATED',
+AUTHOR_UPDATED = 'AUTHOR_UPDATED',
+AUTHOR_DELETED = 'AUTHOR_DELETED';
 
 
 module.exports = {
     Author,
     _getAuthorByID,
     _getAuthorByEmail,
-    
+
     _getAuthors,
-    _getAuthorsBy,
+    _getAuthorsByWhereInput,
 
 
     //mutations
     _createAuthor,
     _updateAuthor,
-    _deleteAuthor
+    _deleteAuthor,
+    _createdAuthorSub,
+    _updatedAuthorSub,
+    _deletedAuthorSub,
 }
